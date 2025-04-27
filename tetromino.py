@@ -158,11 +158,11 @@ class Tetromino:
       return True  # a successful move in the given direction
    
    def rotate(self, game_grid):
-    # saat yönünde döndür (rotate 90 derece clockwise)
+    # (rotate 90 derece clockwise)
     rotated_matrix = np.rot90(self.tile_matrix, -1)
     n = len(rotated_matrix)
     
-    # geçici olarak döndürülmüş matrix ile pozisyon kontrolü yapalım
+    # position control with matrix
     for row in range(n):
         for col in range(n):
             tile = rotated_matrix[row][col]
@@ -171,13 +171,13 @@ class Tetromino:
                 pos.x = self.bottom_left_cell.x + col
                 pos.y = self.bottom_left_cell.y + (n - 1) - row
 
-                # sınır dışı mı? çakışıyor mu?
+                # merge check
                 if not game_grid.is_inside(pos.y, pos.x):
-                    return  # döndürme başarısız
+                    return  # rotate successfull
                 if game_grid.is_occupied(pos.y, pos.x):
-                    return  # döndürme başarısız
+                    return  
 
-    # döndürme geçerli → uygula!
+    # rotation applyingg
     self.tile_matrix = rotated_matrix
 
    # A method for checking if this tetromino can be moved in a given direction
@@ -187,7 +187,7 @@ class Tetromino:
       if direction == "left" or direction == "right":
          for row_index in range(n):
             for col_index in range(n):
-               # direction = left --> check the leftmost tile of each row
+               # direction = left  check the leftmost tile of each row
                row, col = row_index, col_index
                if direction == "left" and self.tile_matrix[row][col] is not None:
                   # the position of the leftmost tile of the current row
@@ -200,7 +200,7 @@ class Tetromino:
                      return False  # this tetromino cannot be moved left
                   # as the leftmost tile of the current row is checked
                   break  # end the inner for loop
-               # direction = right --> check the rightmost tile of each row
+               # direction = right check the rightmost tile of each row
                row, col = row_index, n - 1 - col_index
                if direction == "right" and self.tile_matrix[row][col] is not None:
                   # the position of the rightmost tile of the current row
@@ -213,7 +213,7 @@ class Tetromino:
                      return False  # this tetromino cannot be moved right
                   # as the rightmost tile of the current row is checked
                   break  # end the inner for loop
-      # direction = down --> check the bottommost tile of each column
+      # if direction = down check the bottommost tile of each column
       else:
          for col in range(n):
             for row in range(n - 1, -1, -1):
