@@ -18,17 +18,17 @@ class Tile:
       
    def set_colors(self):
     color_map = {
-        2: Color(173, 216, 230),    # Açık Mavi
-        4: Color(100, 149, 237),    # Koyu Mavi
-        8: Color(144, 238, 144),    # Açık Yeşil
-        16: Color(60, 179, 113),    # Orta Yeşil
-        32: Color(255, 223, 0),   # Sarı
-        64: Color(255, 165, 0),     # Turuncu
-        128: Color(255, 99, 71),    # Turuncumsu
-        256: Color(255, 69, 0),     # Kırmızı
-        512: Color(255, 0, 0),      # Saf Kırmızı
-        1024: Color(148, 0, 211),   # Mor
-        2048: Color(75, 0, 130)     # Lacivertimsi Mor
+        2: Color(173, 216, 230),    # soft blue
+        4: Color(100, 149, 237),    # darker blue
+        8: Color(144, 238, 144),    # soft green
+        16: Color(60, 179, 113),    # green
+        32: Color(255, 223, 0),     # yellow
+        64: Color(255, 165, 0),     # orange
+        128: Color(255, 99, 71),    # likely orange
+        256: Color(255, 69, 0),     # bright red
+        512: Color(255, 0, 0),      # red
+        1024: Color(148, 0, 211),   # purple
+        2048: Color(75, 0, 130)     # purple + dark blue
     }
     self.background_color = color_map.get(self.number, Color(60, 58, 50))
     self.foreground_color = Color(0, 0, 0)
@@ -37,10 +37,10 @@ class Tile:
 
    # A method for drawing this tile at a given position with a given length
    def draw(self, position, length=1):
-    #  Her seferinde rengini güncelle
+    #  everytime update colorss
     self.set_colors()
 
-    # sonra çiz
+    # after draw
     stddraw.setPenColor(self.background_color)
     stddraw.filledSquare(position.x, position.y, length / 2)
     
