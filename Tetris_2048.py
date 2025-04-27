@@ -1,15 +1,18 @@
-import lib.stddraw as stddraw
-from lib.picture import Picture
-from lib.color import Color
-import os
-from game_grid import GameGrid
-from tetromino import Tetromino
-import random
-import time
-import sys
+# Import necessary libraries
+import lib.stddraw as stddraw  # # For drawing and handling the game window
+from lib.picture import Picture  # # For displaying images (menu background)
+from lib.color import Color  # # For managing colors
+import os  # # For file path operations
+from game_grid import GameGrid  # # For handling the game grid and tile logic
+from tetromino import Tetromino  # # For representing tetromino shapes
+import random  # # For random selection (random tetrominoes)
+import time  # # For timing events like keypresses
+import sys  # # For exiting the program
 
 def start():
-    # Başlangıç ayarları
+    # # Initializes the game and starts the main game loop
+
+    # # Set basic grid and canvas settings
     grid_h, grid_w = 20, 12
     canvas_w = 32 * (grid_w + 8)
     canvas_h = 32 * grid_h
@@ -17,9 +20,11 @@ def start():
     stddraw.setXscale(-0.5, grid_w + 7.5)
     stddraw.setYscale(-0.5, grid_h - 0.5)
 
+    # # Set static grid size for Tetromino class
     Tetromino.grid_height = grid_h
     Tetromino.grid_width = grid_w
 
+    # # Create the game grid and first two tetromino pieces
     grid = GameGrid(grid_h, grid_w)
     current_tetromino = create_tetromino()
     next_tetromino = create_tetromino()
@@ -27,27 +32,26 @@ def start():
     grid.current_tetromino = current_tetromino
     grid.next_tetromino = next_tetromino
 
-    game_paused = False
+    game_paused = False  # # Game pause flag
 
+    last_down_time = 0  # # Track last down key press time
+    down_press_interval = 0.3  # # Minimum interval to count fast double-press
+    down_press_count = 0  # # Counter for double-down-press to trigger hard drop
 
+    score = 0  # # Initial score
+    game_over = False  # # Game over flag
 
-    last_down_time = 0
-    down_press_interval = 0.3
-    down_press_count = 0
-
-    score = 0  #  Skoru başlatıyoruz
-    game_over = False
-
-
+    # # Display initial menu screen
     display_game_menu(grid_h, grid_w)
 
+    # # Main game loop
     while True:
         if stddraw.hasNextKeyTyped():
             key_typed = stddraw.nextKeyTyped()
 
             if key_typed == "p":
                 game_paused = not game_paused
-                time.sleep(0.2)
+                time.sleep(0.2)  # # Avoid accidental multiple toggles
 
             if not game_paused:
                 if key_typed == "left":
@@ -63,6 +67,7 @@ def start():
                     last_down_time = current_time
 
                     if down_press_count == 2:
+                        # # Perform hard drop if down pressed twice quickly
                         while current_tetromino.move("down", grid):
                             pass
                         down_press_count = 0
@@ -70,6 +75,7 @@ def start():
                         current_tetromino.move("down", grid)
 
                 elif key_typed == "space":
+                    # # Hard drop on space press
                     while current_tetromino.move("down", grid):
                         pass
                 elif key_typed == "up":
@@ -78,6 +84,7 @@ def start():
             stddraw.clearKeysTyped()
 
         if game_paused:
+            # # Show pause menu if paused
             action = draw_pause_menu(grid.grid_width, grid.grid_height)
             if action == "resume":
                 game_paused = False
@@ -85,9 +92,10 @@ def start():
                 sys.exit()
 
         else:
+            # # Move current tetromino down automatically
             success = current_tetromino.move("down", grid)
             if not success:
-                score += 10  # ✨ Tetromino yere düştü, skor 10 artıyor
+                score += 10  # # Increase score when tetromino lands
                 tiles, pos = current_tetromino.get_min_bounded_tile_matrix(True)
                 grid.update_grid(tiles, pos)
 
@@ -96,16 +104,19 @@ def start():
                     time.sleep(2)
                     sys.exit()
 
+                # # Switch to the next tetromino
                 current_tetromino = next_tetromino
                 grid.current_tetromino = current_tetromino
                 next_tetromino = create_tetromino()
                 grid.next_tetromino = next_tetromino
 
+            # # Draw game elements
             grid.display()
-            draw_score(score, grid.grid_width, grid.grid_height)  # Skoru ekranda göster
+            draw_score(score, grid.grid_width, grid.grid_height)
             stddraw.show(50)
 
 def initialize_game():
+    # # Sets up a fresh game state
     grid_h, grid_w = 20, 12
     canvas_w = 32 * (grid_w + 8)
     canvas_h = 32 * grid_h
@@ -128,19 +139,17 @@ def initialize_game():
     return grid, current_tetromino, next_tetromino
 
 def draw_pause_menu(grid_w, grid_h):
+    # # Displays a pause menu with resume and quit options
     stddraw.clear()
     
     box_width = 8
     box_height = 8
-
     center_x = (grid_w + 7.5) / 2
     center_y = (grid_h - 0.5) / 2
-
 
     stddraw.setPenColor(Color(50, 50, 50))
     stddraw.filledRectangle(center_x - box_width/2, center_y - box_height/2, box_width, box_height)
 
-   
     stddraw.setPenColor(Color(255, 255, 255))
     stddraw.setFontFamily("Arial")
     stddraw.setFontSize(20)
@@ -150,7 +159,6 @@ def draw_pause_menu(grid_w, grid_h):
     stddraw.text(center_x, center_y - 2.5, "Press 'q' to Quit")
 
     stddraw.show(10)
-
 
     while True:
         stddraw.show(10)
@@ -162,12 +170,14 @@ def draw_pause_menu(grid_w, grid_h):
                 return "quit"
 
 def create_tetromino():
+    # # Randomly creates and returns a new Tetromino
     tetromino_types = ['I', 'O', 'Z', 'T', 'J', 'L', 'S']
     random_index = random.randint(0, len(tetromino_types) - 1)
     random_type = tetromino_types[random_index]
     return Tetromino(random_type)
 
 def display_game_menu(grid_height, grid_width):
+    # # Displays the start menu screen with a button to start
     background_color = Color(42, 69, 99)
     button_color = Color(25, 255, 228)
     text_color = Color(31, 160, 239)
@@ -199,17 +209,19 @@ def display_game_menu(grid_height, grid_width):
                 break
 
 def draw_score(score, grid_w, grid_h):
+    # # Draws the current score on the side panel
     stddraw.setPenColor(Color(255, 255, 255))
     stddraw.setFontFamily("Arial")
     stddraw.setFontSize(16)
     stddraw.text(grid_w + 2, grid_h - 1, f"Score: {score}")
 
 def draw_game_over_menu(score):
+    # # Displays the Game Over screen with restart and quit options
     stddraw.clear()
-    center_x = 12 / 2 + 3  # grid_w= 12 so 3 offset
+    center_x = 12 / 2 + 3
     center_y = 20 / 2
 
-    stddraw.setPenColor(Color(255, 0, 0))  # redd
+    stddraw.setPenColor(Color(255, 0, 0))
     stddraw.setFontFamily("Arial")
     stddraw.setFontSize(40)
     stddraw.text(center_x, center_y + 4, "GAME OVER")
@@ -224,7 +236,6 @@ def draw_game_over_menu(score):
 
     stddraw.show(10)
 
-    # Bekle
     while True:
         stddraw.show(10)
         if stddraw.hasNextKeyTyped():
@@ -235,6 +246,6 @@ def draw_game_over_menu(score):
             elif key == 'q':
                 sys.exit()
 
-
+# # Program entry point
 if __name__ == '__main__':
     start()
